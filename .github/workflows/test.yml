@@ -1,0 +1,48 @@
+name: Run tests and generate Coverage Badge
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: write
+
+jobs:
+  coverage:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: |
+          pip install -r requirements.txt
+
+      - name: Run tests and collect coverage
+        run: |
+          coverage run -m pytest
+          coverage report > coverage.txt
+
+      - name: Extract coverage percent
+        id: get_coverage
+        run: |
+          percent=$(grep -E "TOTAL" coverage.txt | awk '{print $NF}' | sed 's/%//')
+          echo "coverage=$percent" >> $GITHUB_OUTPUT
+
+      - name: Generate badge
+        run: |
+          python scripts/generate_badge.py ${{ steps.get_coverage.outputs.coverage }} coverage.svg
+
+      - name: Commit badge
+        run: |
+          git config user.name "github-actions"
+          git config user.email "github-actions@github.com"
+          git add coverage.svg
+          git commit -m "Update coverage badge [skip ci]" || echo "No changes to commit"
+          git push

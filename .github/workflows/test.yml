@@ -44,7 +44,6 @@ jobs:
         run: |
           git fetch origin gh-pages || git checkout --orphan gh-pages
           git switch --orphan gh-pages
-          cp coverage.svg .
           git add coverage.svg
           git commit -m "Update badge"
           git push -f origin gh-pages

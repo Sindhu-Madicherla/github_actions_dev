@@ -38,11 +38,13 @@ jobs:
       - name: Generate badge
         run: |
           python scripts/generate_badge.py ${{ steps.get_coverage.outputs.coverage }} coverage.svg
+          cat coverage.svg
 
       - name: Commit badge
         run: |
+          git fetch origin gh-pages || git checkout --orphan gh-pages
           git switch --orphan gh-pages
-          mv coverage.svg .
+          cp coverage.svg .
           git add coverage.svg
           git commit -m "Update badge"
           git push -f origin gh-pages

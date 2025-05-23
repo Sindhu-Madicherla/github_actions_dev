@@ -38,15 +38,19 @@ jobs:
       - name: Generate badge
         run: |
           python scripts/generate_badge.py ${{ steps.get_coverage.outputs.coverage }} coverage.svg
+          pwd
           ls -al
+
 
       - name: Commit badge
         run: |
+          pwd
           ls -al
           git config user.name "github-actions"
           git config user.email "github-actions@github.com"
           git fetch origin gh-pages || git checkout --orphan gh-pages
           git switch --orphan gh-pages
+          pwd
           ls -la
           cp coverage.svg .
           git add coverage.svg

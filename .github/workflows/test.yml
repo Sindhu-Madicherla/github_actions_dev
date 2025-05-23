@@ -42,19 +42,30 @@ jobs:
           python scripts/generate_badge.py ${{ steps.get_coverage.outputs.coverage }} tmp/coverage.svg
           env
 
-      - name: Commit badge
-        run: |
-          git config user.name "github-actions"
-          git config user.email "github-actions@github.com"
-          git remote set-url origin https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}
-          git fetch origin gh-pages && git checkout gh-pages || git switch --orphan gh-pages
-          cp tmp/coverage.svg .
-          if git diff --quiet coverage.svg; then
-            echo "No changes to commit"
-          else
-            echo "Changes detected, committing..."
-            find . -maxdepth 1 -mindepth 1 ! -name ".git" ! -name "coverage.svg" -exec rm -rf {} +
-            git add coverage.svg
-            git commit -m "Update badge"
-            git push -f origin gh-pages
-          fi
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: 'tmp'
+
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
+        with:
+          url: ${{ steps.deployment.outputs.page_url }}
+
+      # - name: Commit badge
+      #   run: |
+      #     git config user.name "github-actions"
+      #     git config user.email "github-actions@github.com"
+      #     git remote set-url origin https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}
+      #     git fetch origin gh-pages && git checkout gh-pages || git switch --orphan gh-pages
+      #     cp tmp/coverage.svg .
+      #     if git diff --quiet coverage.svg; then
+      #       echo "No changes to commit"
+      #     else
+      #       echo "Changes detected, committing..."
+      #       find . -maxdepth 1 -mindepth 1 ! -name ".git" ! -name "coverage.svg" -exec rm -rf {} +
+      #       git add coverage.svg
+      #       git commit -m "Update badge"
+      #       git push -f origin gh-pages
+      #     fi

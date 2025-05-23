@@ -40,6 +40,7 @@ jobs:
         run: |
           mkdir tmp
           python scripts/generate_badge.py ${{ steps.get_coverage.outputs.coverage }} tmp/coverage.svg
+          env
 
       - name: Commit badge
         run: |

@@ -11,6 +11,10 @@ permissions:
 jobs:
   coverage:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write # Needed for actions/checkout if you fetch the repo
+      pages: write    # Needed for actions/deploy-pages
+      id-token: write # Needed for actions/deploy-pages
 
     steps:
       - uses: actions/checkout@v4
@@ -40,7 +44,6 @@ jobs:
         run: |
           mkdir tmp
           python scripts/generate_badge.py ${{ steps.get_coverage.outputs.coverage }} tmp/coverage.svg
-          env
 
       - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@v3

@@ -26,9 +26,9 @@ jobs:
 
       - name: Run tests and collect coverage
         run: |
-          coverage run -m pytest
-          coverage report > coverage.txt
-
+          make test
+          make coverage
+          # Assuming the coverage report is generated in coverage.txt
       - name: Extract coverage percent
         id: get_coverage
         run: |

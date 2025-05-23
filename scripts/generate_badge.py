@@ -2,7 +2,7 @@ import sys
 
 def color_for_coverage(coverage):
     if coverage >= 90:
-        return "brightgreen"
+        return "green"
     elif coverage >= 75:
         return "green"
     elif coverage >= 60:

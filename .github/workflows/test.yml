@@ -34,7 +34,7 @@ jobs:
         run: |
           make coverage
           percent=$(grep -E "TOTAL" coverage.txt | awk '{print $NF}' | sed 's/%//')
-          echo "coverage=$percent" >> $GITHUB_OUTPUT
+          echo "Coverage=$percent%" && echo "coverage=$percent" >> $GITHUB_OUTPUT
 
       - name: Generate and Commit badge
         run: |

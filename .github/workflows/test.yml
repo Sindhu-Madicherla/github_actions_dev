@@ -47,10 +47,13 @@ jobs:
           git config user.email "github-actions@github.com"
           git remote set-url origin https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/Sindhu-Madicherla/github_actions_dev.git
           git fetch origin gh-pages && git checkout gh-pages || git switch --orphan gh-pages
-          ls -al
           cp tmp/coverage.svg .
-          ls -al
-          find . -maxdepth 1 -mindepth 1 ! -name ".git" ! -name "coverage.svg" -exec rm -rf {} +
-          ls -al
-          git add coverage.svg
-          git commit -m "Update badge" && git push -f origin gh-pages || echo "No changes to commit"
+          if git diff --quiet coverage.svg; then
+            echo "No changes to commit"
+          else
+            echo "Changes detected, committing..."
+            find . -maxdepth 1 -mindepth 1 ! -name ".git" ! -name "coverage.svg" -exec rm -rf {} +
+            git add coverage.svg
+            git commit -m "Update badge"
+            git push -f origin gh-pages
+          fi

@@ -53,5 +53,4 @@ jobs:
           find . -maxdepth 1 -mindepth 1 ! -name ".git" ! -name "coverage.svg" -exec rm -rf {} +
           ls -al
           git add coverage.svg
-          git commit -m "Update badge"
-          git push -f origin gh-pages
+          git commit -m "Update badge" && git push -f origin gh-pages || echo "No changes to commit"

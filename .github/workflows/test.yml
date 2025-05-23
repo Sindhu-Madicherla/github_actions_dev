@@ -2,7 +2,7 @@ name: Run tests and generate Coverage Badge
 
 on:
   push:
-    branches: [main]
+    branches: ['**']
   pull_request:
 
 permissions:
@@ -28,6 +28,7 @@ jobs:
         run: |
           make test
           make coverage
+          echo "Workflow for this branch has run"
           # Assuming the coverage report is generated in coverage.txt
       - name: Extract coverage percent
         id: get_coverage
@@ -39,20 +40,13 @@ jobs:
         run: |
           mkdir tmp
           python scripts/generate_badge.py ${{ steps.get_coverage.outputs.coverage }} tmp/coverage.svg
-          pwd
-          ls -al
-
 
       - name: Commit badge
         run: |
-          pwd
-          ls -al
           git config user.name "github-actions"
           git config user.email "github-actions@github.com"
           git fetch origin gh-pages || git checkout --orphan gh-pages
           git switch --orphan gh-pages
-          pwd
-          ls -la
           cp tmp/coverage.svg .
           git add coverage.svg
           git commit -m "Update badge"

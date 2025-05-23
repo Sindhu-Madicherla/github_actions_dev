@@ -46,9 +46,10 @@ jobs:
           git config user.name "github-actions"
           git config user.email "github-actions@github.com"
           git remote set-url origin https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/Sindhu-Madicherla/github_actions_dev.git
-          git checkout gh-pages || git switch --orphan gh-pages
+          git fetch gh-pages && git checkout gh-pages || git switch --orphan gh-pages
           ls -al
           cp tmp/coverage.svg .
+          ls -al
           find . -maxdepth 1 -mindepth 1 ! -name ".git" ! -name "coverage.svg" -exec rm -rf {} +
           ls -al
           git add coverage.svg

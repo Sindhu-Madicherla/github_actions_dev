@@ -2,7 +2,7 @@ name: Run tests and generate Coverage Badge
 
 on:
   push:
-    branches: ['**']
+    branches: ['workflow-testing']
   pull_request:
 
 permissions:

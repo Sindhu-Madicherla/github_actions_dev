@@ -2,7 +2,7 @@ name: Run tests and generate Coverage Badge
 
 on:
   push:
-    branches: [main]
+    branches: ['workflow-testing']
   pull_request:
 
 permissions:
@@ -11,6 +11,13 @@ permissions:
 jobs:
   coverage:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write # Needed for actions/checkout if you fetch the repo
+      pages: write    # Needed for actions/deploy-pages
+      id-token: write # Needed for actions/deploy-pages
+
+    environment:
+      name: github-pages
 
     steps:
       - uses: actions/checkout@v4
@@ -26,34 +33,45 @@ jobs:
 
       - name: Run tests and collect coverage
         run: |
-          make test
-          make coverage
+          make test | tee coverage.txt
+          echo "Workflow for this branch has run"
           # Assuming the coverage report is generated in coverage.txt
+
       - name: Extract coverage percent
         id: get_coverage
         run: |
           percent=$(grep -E "TOTAL" coverage.txt | awk '{print $NF}' | sed 's/%//')
-          echo "coverage=$percent" >> $GITHUB_OUTPUT
+          echo "Coverage=$percent%" && echo "coverage=$percent" >> $GITHUB_OUTPUT
 
       - name: Generate and Commit badge
         run: |
           mkdir tmp
           python scripts/generate_badge.py ${{ steps.get_coverage.outputs.coverage }} tmp/coverage.svg
-          pwd
-          ls -al
 
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: 'tmp'
 
-      - name: Commit badge
-        run: |
-          pwd
-          ls -al
-          git config user.name "github-actions"
-          git config user.email "github-actions@github.com"
-          git fetch origin gh-pages || git checkout --orphan gh-pages
-          git switch --orphan gh-pages
-          pwd
-          ls -la
-          cp tmp/coverage.svg .
-          git add coverage.svg
-          git commit -m "Update badge"
-          git push -f origin gh-pages
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
+        with:
+          url: ${{ steps.deployment.outputs.page_url }}
+
+      # - name: Commit badge
+      #   run: |
+      #     git config user.name "github-actions"
+      #     git config user.email "github-actions@github.com"
+      #     git remote set-url origin https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}
+      #     git fetch origin gh-pages && git checkout gh-pages || git switch --orphan gh-pages
+      #     cp tmp/coverage.svg .
+      #     if git diff --quiet coverage.svg; then
+      #       echo "No changes to commit"
+      #     else
+      #       echo "Changes detected, committing..."
+      #       find . -maxdepth 1 -mindepth 1 ! -name ".git" ! -name "coverage.svg" -exec rm -rf {} +
+      #       git add coverage.svg
+      #       git commit -m "Update badge"
+      #       git push -f origin gh-pages
+      #     fi

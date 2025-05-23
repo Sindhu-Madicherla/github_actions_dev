@@ -16,6 +16,9 @@ jobs:
       pages: write    # Needed for actions/deploy-pages
       id-token: write # Needed for actions/deploy-pages
 
+    environment:
+      name: github-pages
+
     steps:
       - uses: actions/checkout@v4
 

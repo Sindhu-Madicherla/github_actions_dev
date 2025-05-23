@@ -27,12 +27,12 @@ jobs:
       - name: Run tests and collect coverage
         run: |
           make test
-          make coverage
           echo "Workflow for this branch has run"
           # Assuming the coverage report is generated in coverage.txt
       - name: Extract coverage percent
         id: get_coverage
         run: |
+          make coverage
           percent=$(grep -E "TOTAL" coverage.txt | awk '{print $NF}' | sed 's/%//')
           echo "coverage=$percent" >> $GITHUB_OUTPUT
 

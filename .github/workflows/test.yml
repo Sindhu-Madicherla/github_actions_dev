@@ -35,9 +35,10 @@ jobs:
           percent=$(grep -E "TOTAL" coverage.txt | awk '{print $NF}' | sed 's/%//')
           echo "coverage=$percent" >> $GITHUB_OUTPUT
 
-      - name: Generate badge
+      - name: Generate and Commit badge
         run: |
-          python scripts/generate_badge.py ${{ steps.get_coverage.outputs.coverage }} coverage.svg
+          mkdir tmp
+          python scripts/generate_badge.py ${{ steps.get_coverage.outputs.coverage }} tmp/coverage.svg
           pwd
           ls -al
 
@@ -52,7 +53,7 @@ jobs:
           git switch --orphan gh-pages
           pwd
           ls -la
-          cp coverage.svg .
+          cp tmp/coverage.svg .
           git add coverage.svg
           git commit -m "Update badge"
           git push -f origin gh-pages

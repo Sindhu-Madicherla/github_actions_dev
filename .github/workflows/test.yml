@@ -49,6 +49,7 @@ jobs:
           git fetch origin gh-pages && git checkout gh-pages || git switch --orphan gh-pages
           cp tmp/coverage.svg .
           find . -maxdepth 1 -mindepth 1 ! -name ".git" ! -name "coverage.svg" -exec rm -rf {} +
+          ls -al
           git add coverage.svg
           git commit -m "Update badge"
           git push -f origin gh-pages

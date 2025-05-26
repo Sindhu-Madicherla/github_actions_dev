@@ -1,0 +1,59 @@
+name: Run Tests on PR Creation
+
+on: [pull_request, workflow_dispatch]
+
+permissions:
+  contents: write
+
+jobs:
+  coverage:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write #  Needed for actions/checkout if you fetch the repo
+      pages: write    # Needed for actions/deploy-pages
+      id-token: write # Needed for actions/deploy-pages
+
+    env:
+      PR_HEAD_REF: ${{ github.event.pull_request.head.ref }} # Define PR head branch as a variable
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: |
+          pip install -r requirements.txt
+
+      - name: Run tests and collect coverage
+        run: |
+          make test | tee coverage.txt
+
+      - name: Extract coverage percent
+        id: get_coverage
+        run: |
+          percent=$(grep -E "TOTAL" coverage.txt | awk '{print $NF}' | sed 's/%//')
+          echo "Coverage=$percent%" && echo "coverage=$percent" >> $GITHUB_OUTPUT
+
+      - name: Generate and Commit badge
+        run: |
+          python scripts/generate_badge.py ${{ steps.get_coverage.outputs.coverage }} coverage.svg
+
+      - name: Commit badge
+        run: |
+          cp tmp/coverage.svg coverage.svg # Copy badge to the repository root
+
+          # Check if the badge file has changed to avoid unnecessary commits
+          if git diff --quiet coverage.svg; then
+            echo "coverage.svg badge has not changed. No commit needed."
+          else
+            echo "coverage.svg badge changed. Committing update."
+            git add coverage.svg
+            git commit -m "docs: Update coverage badge [skip ci]"
+            # Safely push changes back to the PR's source branch
+            git push origin HEAD:${{ env.PR_HEAD_REF }} --force-with-lease
+            echo "Coverage badge updated in PR branch."
+          fi

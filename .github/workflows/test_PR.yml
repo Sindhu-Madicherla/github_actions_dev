@@ -45,6 +45,10 @@ jobs:
 
       - name: Commit badge
         run: |
+          git config user.name "github-actions"
+          git config user.email "github-actions@github.com"
+          git remote set-url origin https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}
+
           cp tmp/coverage.svg coverage.svg # Copy badge to the repository root
 
           # Check if the badge file has changed to avoid unnecessary commits

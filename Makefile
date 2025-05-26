@@ -1,7 +1,3 @@
 .PHONY: test
 test:
-	@python3 -m coverage run -m pytest tests
-
-.PHONY: coverage
-coverage:
-	@python3 -m coverage report > coverage.txt
+	@python3 -m pytest tests -p no:warnings -vv --cov=.

@@ -34,7 +34,7 @@ jobs:
       - name: Run tests and collect coverage
         run: |
           make test | tee coverage.txt
-          echo "Workflow for this branch has run"
+          cat coverage.txt
           # Assuming the coverage report is generated in coverage.txt
 
       - name: Extract coverage percent

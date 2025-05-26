@@ -1,3 +1,3 @@
 # github_actions_dev
-![Coverag](https://sindhu-madicherla.github.io/github_actions_dev/coverage.svg)
+![Coverage](./coverage.svg)
 [![Run tests and generate Coverage Badge](https://github.com/Sindhu-Madicherla/github_actions_dev/actions/workflows/test.yml/badge.svg?branch=main)](https://github.com/Sindhu-Madicherla/github_actions_dev/actions/workflows/test.yml)

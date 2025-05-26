@@ -1,0 +1,59 @@
+name: Run tests and generate Coverage Badge
+
+on:
+  push:
+    branches: ['**']
+
+permissions:
+  contents: write
+
+jobs:
+  coverage:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write #  Needed for actions/checkout if you fetch the repo
+      pages: write    # Needed for actions/deploy-pages
+      id-token: write # Needed for actions/deploy-pages
+
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: |
+          pip install -r requirements.txt
+
+      - name: Run tests and collect coverage
+        run: |
+          make test | tee coverage.txt
+          cat coverage.txt
+          # Assuming the coverage report is generated in coverage.txt
+
+      - name: Extract coverage percent
+        id: get_coverage
+        run: |
+          percent=$(grep -E "TOTAL" coverage.txt | awk '{print $NF}' | sed 's/%//')
+          echo "Coverage=$percent%" && echo "coverage=$percent" >> $GITHUB_OUTPUT
+
+      - name: Generate and Commit badge
+        run: |
+          python scripts/generate_badge.py ${{ steps.get_coverage.outputs.coverage }} coverage.svg
+
+      - name: Commit badge
+        run: |
+          git config user.name "github-actions"
+          git config user.email "github-actions@github.com"
+          git remote set-url origin https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}
+          if git diff --quiet coverage.svg; then
+            echo "No changes to commit"
+          else
+            echo "Changes detected, committing..."
+            git add coverage.svg
+            git commit -m "Update coverage badge [skip ci]" || echo "No changes to commit"
+            git push
+          fi

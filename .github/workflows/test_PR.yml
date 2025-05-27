@@ -14,7 +14,7 @@ jobs:
       id-token: write # Needed for actions/deploy-pages
 
     env:
-      PR_HEAD_REF: ${{ github.event.pull_request.head.ref }}  #  Define PR head branch as a variable
+      PR_HEAD_REF: ${{ github.event.pull_request.head.ref }}  # Define PR head branch as a variable
 
     steps:
       - uses: actions/checkout@v4

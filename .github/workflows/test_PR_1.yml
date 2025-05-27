@@ -93,7 +93,7 @@ jobs:
               });
             }
         env:
-          TEST_RESULT: ${{ steps.get_coverage.outputs.coverage }}
+          CODE_COVERAGE: ${{ steps.get_coverage.outputs.coverage }}
 
       # - name: Commit badge
       #   run: |

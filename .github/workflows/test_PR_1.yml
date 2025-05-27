@@ -39,7 +39,6 @@ jobs:
           percent=$(grep -E "TOTAL" coverage.txt | awk '{print $NF}' | sed 's/%//')
           mkdir badges
           echo "Coverage=$percent%" && echo "coverage=$percent" >> $GITHUB_OUTPUT
-          echo "::set-output name=coverage_status::success"
 
       - name: Generate and Commit badge
         uses: emibcn/badge-action@v2.0.3
@@ -49,39 +48,19 @@ jobs:
           path: badges/badge.svg
           color: ${{ steps.get_coverage.outputs.coverage > 75 && 'green' || 'red' }}
 
-      - name: Extract coverage percent
-        run: |
-          cat badges/badge.svg
 
       - name: Add PR Comment with Badge (replaces commiting to branch)
         uses: actions/github-script@v7
         if: always() # Run this step regardless of previous step failures
         with:
           script: |
-            const fs = require('fs');
-            // Ensure the path matches where coverage.svg was created
-            const badgePath = 'badges/coverage.svg';
-            let badgeContent;
-            try {
-              badgeContent = fs.readFileSync(badgePath, 'utf8');
-            } catch (error) {
-              console.error(`Error reading badge file: ${error.message}`);
-              badgeContent = '<svg>Error Badge</svg>'; // Fallback badge
-            }
+            const codeCoverage = parseFloat(process.env.CODE_COVERAGE) || 0;
+            let commentBody = `### Code Coverage Percentage :  **${codeCoverage}**\n\n`;
 
-            const encodedBadge = Buffer.from(badgeContent).toString('base64');
-            const imageUrl = `data:image/svg+xml;base64,${encodedBadge}`;
-            const testStatus = process.env.TEST_STATUS || 'failure';
-
-            let commentBody = `### Code Coverage Status for this PR: **${testStatus.toUpperCase()}**\n\n`;
-            commentBody += `<img src="${imageUrl}" alt="Coverage Badge for PR">\n\n`;
-
-            if (testStatus === 'success') {
-              commentBody += 'All tests passed successfully for this PR! 🎉\n';
-            } else if (testStatus === 'failure') {
-              commentBody += 'Tests failed for this PR. Please review the changes. 🐞\n';
+            if (codeCoverage >= 75) {
+              commentBody += 'Code coverage is above 75%. Good job! 👍\n';
             } else {
-              commentBody += 'PR Test status could not be determined. Please check workflow logs. 🤔\n';
+              commentBody += 'Code coverage is below 75%. Please improve it! 👎\n';
             }
 
             // Logic to find and update/create comment
@@ -93,7 +72,7 @@ jobs:
 
             const existingComment = comments.find(comment =>
               comment.user.login === 'github-actions[bot]' &&
-              comment.body.includes('### Code Coverage Status for this PR:')
+              comment.body.includes('### Code Coverage Percentage :')
             );
 
             if (existingComment) {
@@ -112,7 +91,7 @@ jobs:
               });
             }
         env:
-          TEST_STATUS: ${{ steps.get_coverage.outputs.test_status }}
+          TEST_RESULT: ${{ steps.get_coverage.outputs.coverage }}
 
       # - name: Commit badge
       #   run: |

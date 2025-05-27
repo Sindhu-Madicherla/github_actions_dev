@@ -16,9 +16,6 @@ jobs:
       contents: read
       pull-requests: write
 
-    env:
-      PR_HEAD_REF: ${{ github.event.pull_request.head.ref }}  # Define PR head branch as a variable
-
     steps:
       - uses: actions/checkout@v4
 

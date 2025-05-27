@@ -14,7 +14,7 @@ jobs:
       id-token: write # Needed for actions/deploy-pages
 
     env:
-      PR_HEAD_REF: ${{ github.event.pull_request.head.ref }} # Define PR head branch as a variable
+      PR_HEAD_REF: ${{ github.event.pull_request.head.ref }}  # Define PR head branch as a variable
 
     steps:
       - uses: actions/checkout@v4
@@ -40,20 +40,33 @@ jobs:
 
       - name: Generate and Commit badge
         run: |
-          python scripts/generate_badge.py ${{ steps.get_coverage.outputs.coverage }} coverage.svg
+          mkdir tmp
+          python scripts/generate_badge.py ${{ steps.get_coverage.outputs.coverage }} tmp/coverage.svg
 
       - name: Commit badge
         run: |
+          git config user.name "github-actions"
+          git config user.email "github-actions@github.com"
+          git remote set-url origin https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}
+
           cp tmp/coverage.svg coverage.svg # Copy badge to the repository root
 
           # Check if the badge file has changed to avoid unnecessary commits
           if git diff --quiet coverage.svg; then
             echo "coverage.svg badge has not changed. No commit needed."
           else
-            echo "coverage.svg badge changed. Committing update."
+            git pull origin ${{ env.PR_HEAD_REF }} --rebase || {
+              echo "Failed to rebase/pull. This likely means concurrent pushes or complex history."
+              echo "Attempting a plain force push as a fallback. Review history if this occurs often."
+              git add coverage.svg # Ensure badge is staged again after potential rebase
+              git commit -m "docs: Update coverage badge [skip ci]" || true # Commit only if changes exist, ignore error if no changes
+              git push origin HEAD:${{ env.PR_HEAD_REF }} --force
+              exit 0
+            }
+
             git add coverage.svg
-            git commit -m "docs: Update coverage badge [skip ci]"
-            # Safely push changes back to the PR's source branch
+            git commit -m "docs: Update coverage badge [skip ci]" || true # || true to prevent error if no changes left after pull/rebase
+
             git push origin HEAD:${{ env.PR_HEAD_REF }} --force-with-lease
             echo "Coverage badge updated in PR branch."
           fi

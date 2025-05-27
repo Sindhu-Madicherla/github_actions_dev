@@ -9,9 +9,10 @@ jobs:
   coverage:
     runs-on: ubuntu-latest
     permissions:
-      contents: write #  Needed for actions/checkout if you fetch the repo
-      pages: write    # Needed for actions/deploy-pages
-      id-token: write # Needed for actions/deploy-pages
+      contents: read #  Needed for actions/checkout if you fetch the repo
+      # pages: write    # Needed for actions/deploy-pages
+      # id-token: write # Needed for actions/deploy-pages
+      pull-requests: write
 
     env:
       PR_HEAD_REF: ${{ github.event.pull_request.head.ref }}  # Define PR head branch as a variable
@@ -38,6 +39,7 @@ jobs:
           percent=$(grep -E "TOTAL" coverage.txt | awk '{print $NF}' | sed 's/%//')
           mkdir badges
           echo "Coverage=$percent%" && echo "coverage=$percent" >> $GITHUB_OUTPUT
+          echo "::set-output name=coverage_status::success"
 
       - name: Generate and Commit badge
         uses: emibcn/badge-action@v2.0.3
@@ -50,6 +52,67 @@ jobs:
       - name: Extract coverage percent
         run: |
           cat badges/badge.svg
+
+      - name: Add PR Comment with Badge (replaces commiting to branch)
+        uses: actions/github-script@v7
+        if: always() # Run this step regardless of previous step failures
+        with:
+          script: |
+            const fs = require('fs');
+            // Ensure the path matches where coverage.svg was created
+            const badgePath = 'badges/coverage.svg';
+            let badgeContent;
+            try {
+              badgeContent = fs.readFileSync(badgePath, 'utf8');
+            } catch (error) {
+              console.error(`Error reading badge file: ${error.message}`);
+              badgeContent = '<svg>Error Badge</svg>'; // Fallback badge
+            }
+
+            const encodedBadge = Buffer.from(badgeContent).toString('base64');
+            const imageUrl = `data:image/svg+xml;base64,${encodedBadge}`;
+            const testStatus = process.env.TEST_STATUS || 'failure';
+
+            let commentBody = `### Code Coverage Status for this PR: **${testStatus.toUpperCase()}**\n\n`;
+            commentBody += `<img src="${imageUrl}" alt="Coverage Badge for PR">\n\n`;
+
+            if (testStatus === 'success') {
+              commentBody += 'All tests passed successfully for this PR! 🎉\n';
+            } else if (testStatus === 'failure') {
+              commentBody += 'Tests failed for this PR. Please review the changes. 🐞\n';
+            } else {
+              commentBody += 'PR Test status could not be determined. Please check workflow logs. 🤔\n';
+            }
+
+            // Logic to find and update/create comment
+            const { data: comments } = await github.rest.issues.listComments({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+            });
+
+            const existingComment = comments.find(comment =>
+              comment.user.login === 'github-actions[bot]' &&
+              comment.body.includes('### Code Coverage Status for this PR:')
+            );
+
+            if (existingComment) {
+              await github.rest.issues.updateComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                comment_id: existingComment.id,
+                body: commentBody,
+              });
+            } else {
+              await github.rest.issues.createComment({
+                issue_number: context.issue.number,
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                body: commentBody,
+              });
+            }
+        env:
+          TEST_STATUS: ${{ steps.get_coverage.outputs.test_status }}
 
       # - name: Commit badge
       #   run: |

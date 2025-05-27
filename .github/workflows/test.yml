@@ -1,17 +1,19 @@
 name: Run Tests on PR Creation
 
-on: [pull_request, workflow_dispatch]
+on:
+  pull_request:
+    branches:
+      - trigger_test_PR
 
 permissions:
-  contents: write
+  contents: read
+  pull-requests: write
 
 jobs:
   coverage:
     runs-on: ubuntu-latest
     permissions:
-      contents: read #  Needed for actions/checkout if you fetch the repo
-      # pages: write    # Needed for actions/deploy-pages
-      # id-token: write # Needed for actions/deploy-pages
+      contents: read
       pull-requests: write
 
     env:
@@ -94,31 +96,3 @@ jobs:
             }
         env:
           CODE_COVERAGE: ${{ steps.get_coverage.outputs.coverage }}
-
-      # - name: Commit badge
-      #   run: |
-      #     git config user.name "github-actions"
-      #     git config user.email "github-actions@github.com"
-      #     git remote set-url origin https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}
-
-      #     cp tmp/coverage.svg coverage.svg # Copy badge to the repository root
-
-      #     # Check if the badge file has changed to avoid unnecessary commits
-      #     if git diff --quiet coverage.svg; then
-      #       echo "coverage.svg badge has not changed. No commit needed."
-      #     else
-      #       git pull origin ${{ env.PR_HEAD_REF }} --rebase || {
-      #         echo "Failed to rebase/pull. This likely means concurrent pushes or complex history."
-      #         echo "Attempting a plain force push as a fallback. Review history if this occurs often."
-      #         git add coverage.svg # Ensure badge is staged again after potential rebase
-      #         git commit -m "docs: Update coverage badge [skip ci]" || true # Commit only if changes exist, ignore error if no changes
-      #         git push origin HEAD:${{ env.PR_HEAD_REF }} --force
-      #         exit 0
-      #       }
-
-      #       git add coverage.svg
-      #       git commit -m "docs: Update coverage badge [skip ci]" || true # || true to prevent error if no changes left after pull/rebase
-
-      #       git push origin HEAD:${{ env.PR_HEAD_REF }} --force-with-lease
-      #       echo "Coverage badge updated in PR branch."
-      #     fi

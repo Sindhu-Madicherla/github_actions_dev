@@ -1,0 +1,59 @@
+name: Add coverage badge on Push
+
+on:
+  push:
+    branches:
+      - main
+
+permissions:
+  contents: write
+
+jobs:
+  coverage:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write #  Needed for actions/checkout if you fetch the repo
+      pages: write    # Needed for actions/deploy-pages
+      id-token: write # Needed for actions/deploy-pages
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: |
+          pip install -r requirements.txt
+
+      - name: Run tests and collect coverage
+        run: |
+          make test | tee coverage.txt
+
+      - name: Extract coverage percent
+        id: get_coverage
+        run: |
+          percent=$(grep -E "TOTAL" coverage.txt | awk '{print $NF}' | sed 's/%//')
+          echo "Coverage=$percent%" && echo "coverage=$percent" >> $GITHUB_OUTPUT
+
+      - name: Generate and Commit badge
+        run: |
+          mkdir badges
+          python scripts/generate_badge.py ${{ steps.get_coverage.outputs.coverage }} badges/coverage.svg
+
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: 'badges/coverage.svg'
+
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
+
+
+

@@ -40,22 +40,22 @@ jobs:
           mkdir badges
           echo "Coverage=$percent%" && echo "coverage=$percent" >> $GITHUB_OUTPUT
 
-      - name: Generate and Commit badge
-        uses: emibcn/badge-action@v2.0.3
-        with:
-          label: 'Test coverage'
-          status: ${{ steps.get_coverage.outputs.coverage }}
-          path: badges/badge.svg
-          color: ${{ steps.get_coverage.outputs.coverage > 75 && 'green' || 'red' }}
+      # - name: Generate and Commit badge
+      #   uses: emibcn/badge-action@v2.0.3
+      #   with:
+      #     label: 'Test coverage'
+      #     status: ${{ steps.get_coverage.outputs.coverage }}
+      #     path: badges/badge.svg
+      #     color: ${{ steps.get_coverage.outputs.coverage > 75 && 'green' || 'red' }}
 
 
-      - name: Add PR Comment with Badge (replaces commiting to branch)
+      - name: Add PR Comment with Coverage Status
         uses: actions/github-script@v7
-        if: always() # Run this step regardless of previous step failures
+        if: always()
         with:
           script: |
             const codeCoverage = parseFloat(process.env.CODE_COVERAGE) || 0;
-            let commentBody = `### Code Coverage Percentage :  **${codeCoverage}**\n\n`;
+            let commentBody = `### Code Coverage Percentage :  **${codeCoverage}**%\n\n `;
             console.log(`Raw process.env.CODE_COVERAGE: "${process.env.CODE_COVERAGE}"`);
             console.log(`Parsed codeCoverage: ${codeCoverage}`);
 

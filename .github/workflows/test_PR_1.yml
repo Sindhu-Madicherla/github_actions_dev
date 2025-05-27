@@ -36,19 +36,20 @@ jobs:
         id: get_coverage
         run: |
           percent=$(grep -E "TOTAL" coverage.txt | awk '{print $NF}' | sed 's/%//')
+          mkdir badges
           echo "Coverage=$percent%" && echo "coverage=$percent" >> $GITHUB_OUTPUT
 
       - name: Generate and Commit badge
-        uses: emibcn/badge-action@v1
+        uses: emibcn/badge-action@v2.0.3
         with:
           label: 'Test coverage'
           status: ${{ steps.get_coverage.outputs.coverage }}
-          path: coverage_output/badge.svg
+          path: badges/badge.svg
           color: ${{ steps.get_coverage.outputs.coverage > 75 && 'green' || 'red' }}
 
       - name: Extract coverage percent
         run: |
-          cat coverage_output/badge.svg
+          cat badges/badge.svg
 
       # - name: Commit badge
       #   run: |

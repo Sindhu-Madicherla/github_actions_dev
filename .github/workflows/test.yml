@@ -1,14 +1,14 @@
 name: Run Tests on PR Creation
 
 on:
-  pull_request:
+  push:
     branches:
-      - trigger_test_PR
+      - trigger_test_PR_clone
 
 permissions:
   contents: read
   pull-requests: write
-
+run-name: '${{ github.event.head_commit.message }} | Coverage: ${{ steps.get_coverage.outputs.coverage || "N/A" }}'
 jobs:
   coverage:
     runs-on: ubuntu-latest
@@ -48,48 +48,48 @@ jobs:
       #     color: ${{ steps.get_coverage.outputs.coverage > 75 && 'green' || 'red' }}
 
 
-      - name: Add PR Comment with Coverage Status
-        uses: actions/github-script@v7
-        if: always()
-        with:
-          script: |
-            const codeCoverage = parseFloat(process.env.CODE_COVERAGE) || 0;
-            let commentBody = `### Code Coverage Percentage :  **${codeCoverage}**%\n\n `;
-            console.log(`Raw process.env.CODE_COVERAGE: "${process.env.CODE_COVERAGE}"`);
-            console.log(`Parsed codeCoverage: ${codeCoverage}`);
+      # - name: Add PR Comment with Coverage Status
+      #   uses: actions/github-script@v7
+      #   if: always()
+      #   with:
+      #     script: |
+      #       const codeCoverage = parseFloat(process.env.CODE_COVERAGE) || 0;
+      #       let commentBody = `### Code Coverage Percentage :  **${codeCoverage}**%\n\n `;
+      #       console.log(`Raw process.env.CODE_COVERAGE: "${process.env.CODE_COVERAGE}"`);
+      #       console.log(`Parsed codeCoverage: ${codeCoverage}`);
 
-            if (codeCoverage >= 75) {
-              commentBody += 'Code coverage is above 75%. Good job! 👍\n';
-            } else {
-              commentBody += 'Code coverage is below 75%. Please improve it! 👎\n';
-            }
+      #       if (codeCoverage >= 75) {
+      #         commentBody += 'Code coverage is above 75%. Good job! 👍\n';
+      #       } else {
+      #         commentBody += 'Code coverage is below 75%. Please improve it! 👎\n';
+      #       }
 
-            // Logic to find and update/create comment
-            const { data: comments } = await github.rest.issues.listComments({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              issue_number: context.issue.number,
-            });
+      #       // Logic to find and update/create comment
+      #       const { data: comments } = await github.rest.issues.listComments({
+      #         owner: context.repo.owner,
+      #         repo: context.repo.repo,
+        #       issue_number: context.issue.number,
+        #     });
 
-            const existingComment = comments.find(comment =>
-              comment.user.login === 'github-actions[bot]' &&
-              comment.body.includes('### Code Coverage Percentage :')
-            );
+        #     const existingComment = comments.find(comment =>
+        #       comment.user.login === 'github-actions[bot]' &&
+        #       comment.body.includes('### Code Coverage Percentage :')
+        #     );
 
-            if (existingComment) {
-              await github.rest.issues.updateComment({
-                owner: context.repo.owner,
-                repo: context.repo.repo,
-                comment_id: existingComment.id,
-                body: commentBody,
-              });
-            } else {
-              await github.rest.issues.createComment({
-                issue_number: context.issue.number,
-                owner: context.repo.owner,
-                repo: context.repo.repo,
-                body: commentBody,
-              });
-            }
-        env:
-          CODE_COVERAGE: ${{ steps.get_coverage.outputs.coverage }}
+        #     if (existingComment) {
+        #       await github.rest.issues.updateComment({
+        #         owner: context.repo.owner,
+        #         repo: context.repo.repo,
+        #         comment_id: existingComment.id,
+        #         body: commentBody,
+        #       });
+        #     } else {
+        #       await github.rest.issues.createComment({
+        #         issue_number: context.issue.number,
+        #         owner: context.repo.owner,
+        #         repo: context.repo.repo,
+        #         body: commentBody,
+        #       });
+        #     }
+        # env:
+        #   CODE_COVERAGE: ${{ steps.get_coverage.outputs.coverage }}

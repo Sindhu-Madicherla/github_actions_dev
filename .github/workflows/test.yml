@@ -40,7 +40,7 @@ jobs:
 
       - name: Add Coverage to Summary
         run: |
-          echo "### 🧪 Code Coverage: **${{ steps.get_coverage.outputs.coverage }}**" >> $GITHUB_STEP_SUMMARY
+          echo "### 🧪 Code Coverage: **${{ steps.get_coverage.outputs.coverage }}**%" >> $GITHUB_STEP_SUMMARY
 
       # - name: Generate and Commit badge
       #   uses: emibcn/badge-action@v2.0.3
@@ -96,3 +96,4 @@ jobs:
         #     }
         # env:
         #   CODE_COVERAGE: ${{ steps.get_coverage.outputs.coverage }}
+

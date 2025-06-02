@@ -3,12 +3,11 @@ name: Run Tests on PR Creation
 on:
   push:
     branches:
-      - trigger_test_PR
+      - trigger_test_PR_clone
 
 permissions:
   contents: read
   pull-requests: write
-run-name: '${{ github.event.head_commit.message }} | Coverage: ${{ steps.get_coverage.outputs.coverage }}'
 jobs:
   coverage:
     runs-on: ubuntu-latest
@@ -38,6 +37,10 @@ jobs:
           percent=$(grep -E "TOTAL" coverage.txt | awk '{print $NF}' | sed 's/%//')
           mkdir badges
           echo "Coverage=$percent%" && echo "coverage=$percent" >> $GITHUB_OUTPUT
+
+      - name: Add Coverage to Summary
+        run: |
+          echo "### 🧪 Code Coverage: **${{ steps.get_coverage.outputs.coverage }}**" >> $GITHUB_STEP_SUMMARY
 
       # - name: Generate and Commit badge
       #   uses: emibcn/badge-action@v2.0.3

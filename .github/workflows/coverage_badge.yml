@@ -44,7 +44,7 @@ jobs:
         run: |
           npm i -g badgen-cli
           export COV=${{ steps.get-get_coverage.outputs.coverage }}
-          COLOR=$(node -p '+process.env.COV >= 95 ? `green` : `orange`')
+          COLOR=$(node -p '+process.env.COV >= 90 ? `green` : `orange`')
           mkdir -p badges
           badgen -j coverage -s $COV% -c $COLOR > badges/coverage.svg
           rm -f coverage.txt

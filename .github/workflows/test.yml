@@ -3,7 +3,7 @@ name: Run Tests on PR Creation
 on:
   push:
     branches:
-      - ["**"] # Matches all branches
+      - "**" # Matches all branches
 
 permissions:
   contents: read

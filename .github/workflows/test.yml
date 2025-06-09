@@ -60,22 +60,22 @@ jobs:
       #   if: github.ref == 'refs/heads/trigger_test_PR'
       #   id: deployment
       #   uses: actions/deploy-pages@v4
-      - name: Create coverage-badges3 branch if not exists
-        run: |
-          git fetch origin
-          if ! git show-ref --quiet refs/remotes/origin/coverage-badges3; then
-            echo "Creating orphan coverage-badges3 branch"
-            git checkout --orphan coverage-badges3
-            git rm -rf .
-            mkdir -p badges
-            echo "initial" > badges/.keep
-            git add badges/.keep
-            git commit -m "Initial commit with badges folder"
-            git push origin coverage-badges3
-          else
-            echo "Branch exists, checking it out"
-            git checkout coverage-badges3
-          fi
+      # - name: Create coverage-badges3 branch if not exists
+      #   run: |
+      #     git fetch origin
+      #     if ! git show-ref --quiet refs/remotes/origin/coverage-badges3; then
+      #       echo "Creating orphan coverage-badges3 branch"
+      #       git checkout --orphan coverage-badges3
+      #       git rm -rf .
+      #       mkdir -p badges
+      #       echo "initial" > badges/.keep
+      #       git add badges/.keep
+      #       git commit -m "Initial commit with badges folder"
+      #       git push origin coverage-badges3
+      #     else
+      #       echo "Branch exists, checking it out"
+      #       git checkout coverage-badges3
+      #     fi
 
       - name: Push to coverage-badges3 branch
         if: github.ref == 'refs/heads/main'
@@ -83,6 +83,6 @@ jobs:
         with:
           commit_message: "Update coverage badge"
           branch: coverage-badges3
-          skip_fetch: true
-          skip_checkout: true
+          # skip_fetch: true
+          # skip_checkout: true
 

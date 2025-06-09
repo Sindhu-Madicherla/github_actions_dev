@@ -61,31 +61,31 @@ jobs:
       #   id: deployment
       #   uses: actions/deploy-pages@v4
 
-      - name: Create coverage-badges6 branch if not exists
+      - name: Create coverage-badges7 branch if not exists
         run: |
           git config --global user.name "GitHub Actions"
           git config user.email "github-actions@github.com"
           git fetch origin
-          if ! git show-ref --quiet refs/remotes/origin/coverage-badges6; then
-            echo "Creating orphan coverage-badges6 branch"
-            git checkout --orphan coverage-badges6
+          if ! git show-ref --quiet refs/remotes/origin/coverage-badges7; then
+            echo "Creating orphan coverage-badges7 branch"
+            git checkout --orphan coverage-badges7
             find . -mindepth 1 -maxdepth 1 ! -name badges ! -name .git -exec rm -rf {} + && git clean -fdx
             ls -ltr
             echo "Branch to keep badges" > README.md
             git add .
             git commit -m "Initial commit"
-            git push origin coverage-badges6
+            git push origin coverage-badges7
           else
             echo "Branch exists, checking it out"
-            git checkout coverage-badges6
+            git checkout coverage-badges7
           fi
 
-      - name: Push to coverage-badges6 branch
+      - name: Push to coverage-badges7 branch
         if: github.ref == 'refs/heads/main'
         uses: stefanzweifel/git-auto-commit-action@v4
         with:
           commit_message: "Update coverage badge"
-          branch: coverage-badges6
-          skip_fetch: true
-          skip_checkout: true
+          branch: coverage-badges7
+          # skip_fetch: true
+          # skip_checkout: true
 

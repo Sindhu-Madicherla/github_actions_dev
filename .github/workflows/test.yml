@@ -70,6 +70,7 @@ jobs:
             echo "Creating orphan coverage-badges6 branch"
             git checkout --orphan coverage-badges6
             find . -mindepth 1 -maxdepth 1 ! -name badges ! -name .git -exec rm -rf {} + && git clean -fdx
+            ls -ltr
             echo "Branch to keep badges" > README.md
             git add .
             git commit -m "Initial commit"

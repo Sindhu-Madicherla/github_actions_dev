@@ -1,2 +1,2 @@
 # github_actions_dev
-![Coverage](https://sindhu-madicherla.github.io/github_actions_dev/coverage.svg)<!-- [![Run tests and generate Coverage Badge](https://github.com/Sindhu-Madicherla/github_actions_dev/actions/workflows/test.yml/badge.svg?branch=main)](https://github.com/Sindhu-Madicherla/github_actions_dev/actions/workflows/test.yml) -->
+![Coverage](https://raw.githubusercontent.com/Sindhu-Madicherla/github_actions_dev/badges/badges/coverage.svg)<!-- [![Run tests and generate Coverage Badge](https://github.com/Sindhu-Madicherla/github_actions_dev/actions/workflows/test.yml/badge.svg?branch=main)](https://github.com/Sindhu-Madicherla/github_actions_dev/actions/workflows/test.yml) -->

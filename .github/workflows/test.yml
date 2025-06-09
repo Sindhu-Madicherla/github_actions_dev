@@ -1,21 +1,17 @@
 name: Run Tests on PR Creation
 
-on: [pull_request, workflow_dispatch]
+on:
+  push:
+    branches:
+      - "**" # Matches all branches
 
 permissions:
   contents: write
-
+  pages: write    # Needed for actions/deploy-pages
+  id-token: write # Needed for actions/deploy-pages
 jobs:
   coverage:
     runs-on: ubuntu-latest
-    permissions:
-      contents: read #  Needed for actions/checkout if you fetch the repo
-      # pages: write    # Needed for actions/deploy-pages
-      # id-token: write # Needed for actions/deploy-pages
-      pull-requests: write
-
-    env:
-      PR_HEAD_REF: ${{ github.event.pull_request.head.ref }}  # Define PR head branch as a variable
 
     steps:
       - uses: actions/checkout@v4
@@ -40,6 +36,31 @@ jobs:
           mkdir badges
           echo "Coverage=$percent%" && echo "coverage=$percent" >> $GITHUB_OUTPUT
 
+      - name: Add Coverage to Summary
+        run: |
+          echo "### Code Coverage: **${{ steps.get_coverage.outputs.coverage }}**%" >> $GITHUB_STEP_SUMMARY
+
+      - name: Generate and Commit badge
+        if: github.ref == 'refs/heads/trigger_test_PR'
+        run: |
+          npm i -g badgen-cli
+          export COV=${{ steps.get_coverage.outputs.coverage }}
+          COLOR=$(node -p '+process.env.COV >= 90 ? `green` : `orange`')
+          mkdir -p badges
+          badgen -j coverage -s $COV% -c $COLOR > badges/coverage.svg
+          rm -f coverage.txt
+
+      - name: Upload Pages artifact
+        if: github.ref == 'refs/heads/trigger_test_PR'
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: 'badges'
+
+      - name: Deploy to GitHub Pages
+        if: github.ref == 'refs/heads/trigger_test_PR'
+        id: deployment
+        uses: actions/deploy-pages@v4
+
       # - name: Generate and Commit badge
       #   uses: emibcn/badge-action@v2.0.3
       #   with:
@@ -49,76 +70,49 @@ jobs:
       #     color: ${{ steps.get_coverage.outputs.coverage > 75 && 'green' || 'red' }}
 
 
-      - name: Add PR Comment with Coverage Status
-        uses: actions/github-script@v7
-        if: always()
-        with:
-          script: |
-            const codeCoverage = parseFloat(process.env.CODE_COVERAGE) || 0;
-            let commentBody = `### Code Coverage Percentage :  **${codeCoverage}**%\n\n `;
-            console.log(`Raw process.env.CODE_COVERAGE: "${process.env.CODE_COVERAGE}"`);
-            console.log(`Parsed codeCoverage: ${codeCoverage}`);
+      # - name: Add PR Comment with Coverage Status
+      #   uses: actions/github-script@v7
+      #   if: always()
+      #   with:
+      #     script: |
+      #       const codeCoverage = parseFloat(process.env.CODE_COVERAGE) || 0;
+      #       let commentBody = `### Code Coverage Percentage :  **${codeCoverage}**%\n\n `;
+      #       console.log(`Raw process.env.CODE_COVERAGE: "${process.env.CODE_COVERAGE}"`);
+      #       console.log(`Parsed codeCoverage: ${codeCoverage}`);
 
-            if (codeCoverage >= 75) {
-              commentBody += 'Code coverage is above 75%. Good job! 👍\n';
-            } else {
-              commentBody += 'Code coverage is below 75%. Please improve it! 👎\n';
-            }
-
-            // Logic to find and update/create comment
-            const { data: comments } = await github.rest.issues.listComments({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              issue_number: context.issue.number,
-            });
-
-            const existingComment = comments.find(comment =>
-              comment.user.login === 'github-actions[bot]' &&
-              comment.body.includes('### Code Coverage Percentage :')
-            );
-
-            if (existingComment) {
-              await github.rest.issues.updateComment({
-                owner: context.repo.owner,
-                repo: context.repo.repo,
-                comment_id: existingComment.id,
-                body: commentBody,
-              });
-            } else {
-              await github.rest.issues.createComment({
-                issue_number: context.issue.number,
-                owner: context.repo.owner,
-                repo: context.repo.repo,
-                body: commentBody,
-              });
-            }
-        env:
-          CODE_COVERAGE: ${{ steps.get_coverage.outputs.coverage }}
-
-      # - name: Commit badge
-      #   run: |
-      #     git config user.name "github-actions"
-      #     git config user.email "github-actions@github.com"
-      #     git remote set-url origin https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}
-
-      #     cp tmp/coverage.svg coverage.svg # Copy badge to the repository root
-
-      #     # Check if the badge file has changed to avoid unnecessary commits
-      #     if git diff --quiet coverage.svg; then
-      #       echo "coverage.svg badge has not changed. No commit needed."
-      #     else
-      #       git pull origin ${{ env.PR_HEAD_REF }} --rebase || {
-      #         echo "Failed to rebase/pull. This likely means concurrent pushes or complex history."
-      #         echo "Attempting a plain force push as a fallback. Review history if this occurs often."
-      #         git add coverage.svg # Ensure badge is staged again after potential rebase
-      #         git commit -m "docs: Update coverage badge [skip ci]" || true # Commit only if changes exist, ignore error if no changes
-      #         git push origin HEAD:${{ env.PR_HEAD_REF }} --force
-      #         exit 0
+      #       if (codeCoverage >= 75) {
+      #         commentBody += 'Code coverage is above 75%. Good job! 👍\n';
+      #       } else {
+      #         commentBody += 'Code coverage is below 75%. Please improve it! 👎\n';
       #       }
 
-      #       git add coverage.svg
-      #       git commit -m "docs: Update coverage badge [skip ci]" || true # || true to prevent error if no changes left after pull/rebase
+      #       // Logic to find and update/create comment
+      #       const { data: comments } = await github.rest.issues.listComments({
+      #         owner: context.repo.owner,
+      #         repo: context.repo.repo,
+        #       issue_number: context.issue.number,
+        #     });
 
-      #       git push origin HEAD:${{ env.PR_HEAD_REF }} --force-with-lease
-      #       echo "Coverage badge updated in PR branch."
-      #     fi
+        #     const existingComment = comments.find(comment =>
+        #       comment.user.login === 'github-actions[bot]' &&
+        #       comment.body.includes('### Code Coverage Percentage :')
+        #     );
+
+        #     if (existingComment) {
+        #       await github.rest.issues.updateComment({
+        #         owner: context.repo.owner,
+        #         repo: context.repo.repo,
+        #         comment_id: existingComment.id,
+        #         body: commentBody,
+        #       });
+        #     } else {
+        #       await github.rest.issues.createComment({
+        #         issue_number: context.issue.number,
+        #         owner: context.repo.owner,
+        #         repo: context.repo.repo,
+        #         body: commentBody,
+        #       });
+        #     }
+        # env:
+        #   CODE_COVERAGE: ${{ steps.get_coverage.outputs.coverage }}
+

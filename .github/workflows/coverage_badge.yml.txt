@@ -3,18 +3,17 @@ name: Add coverage badge on Push
 on:
   push:
     branches:
-      - main
+      # - main
+      - trigger_test_PR_clone
 
 permissions:
   contents: write
+  pages: write    # Needed for actions/deploy-pages
+  id-token: write # Needed for actions/deploy-pages
 
 jobs:
   coverage:
     runs-on: ubuntu-latest
-    permissions:
-      contents: write #  Needed for actions/checkout if you fetch the repo
-      pages: write    # Needed for actions/deploy-pages
-      id-token: write # Needed for actions/deploy-pages
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
@@ -43,8 +42,12 @@ jobs:
 
       - name: Generate and Commit badge
         run: |
-          mkdir badges
-          python scripts/generate_badge.py ${{ steps.get_coverage.outputs.coverage }} badges/coverage.svg
+          npm i -g badgen-cli
+          export COV=${{ steps.get_coverage.outputs.coverage }}
+          COLOR=$(node -p '+process.env.COV >= 90 ? `green` : `orange`')
+          mkdir -p badges
+          badgen -j coverage -s $COV% -c $COLOR > badges/coverage.svg
+          rm -f coverage.txt
 
       - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@v3

@@ -40,16 +40,6 @@ jobs:
         run: |
           echo "### Code Coverage: **${{ steps.get_coverage.outputs.coverage }}**%" >> $GITHUB_STEP_SUMMARY
 
-      - name: Generate badge
-        if: github.ref == 'refs/heads/main'
-        run: |
-          npm i -g badgen-cli
-          export COV=${{ steps.get_coverage.outputs.coverage }}
-          COLOR=$(node -p '+process.env.COV >= 90 ? `green` : `orange`')
-          mkdir -p badges
-          badgen -j coverage -s $COV% -c $COLOR > badges/coverage.svg
-          rm -f coverage.txt
-
       # - name: Upload Pages artifact
       #   if: github.ref == 'refs/heads/trigger_test_PR'
       #   uses: actions/upload-pages-artifact@v3
@@ -69,8 +59,7 @@ jobs:
           if ! git show-ref --quiet refs/remotes/origin/coverage-badges7; then
             echo "Creating orphan coverage-badges7 branch"
             git checkout --orphan coverage-badges7
-            find . -mindepth 1 -maxdepth 1 ! -name badges ! -name .git -exec rm -rf {} + && git clean -fdx
-            ls -ltr
+            git rm -rf && git clean -fdx
             echo "Branch to keep badges" > README.md
             git add .
             git commit -m "Initial commit"
@@ -79,6 +68,16 @@ jobs:
             echo "Branch exists, checking it out"
             git checkout coverage-badges7
           fi
+
+      - name: Generate badge
+        if: github.ref == 'refs/heads/main'
+        run: |
+          npm i -g badgen-cli
+          export COV=${{ steps.get_coverage.outputs.coverage }}
+          COLOR=$(node -p '+process.env.COV >= 90 ? `green` : `orange`')
+          mkdir -p badges
+          badgen -j coverage -s $COV% -c $COLOR > badges/coverage.svg
+          rm -f coverage.txt
 
       - name: Push to coverage-badges7 branch
         if: github.ref == 'refs/heads/main'

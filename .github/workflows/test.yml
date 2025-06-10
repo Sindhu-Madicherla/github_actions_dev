@@ -30,12 +30,12 @@ jobs:
         run: |
           make test | tee coverage.txt
 
-      # - name: Extract coverage percent
-      #   id: get_coverage
-      #   run: |
-      #     percent=$(grep -E "TOTAL" coverage.txt | awk '{print $NF}' | sed 's/%//')
-      #     mkdir badges
-      #     echo "Coverage=$percent%" && echo "coverage=$percent" >> $GITHUB_OUTPUT
+      - name: Extract coverage percent
+        id: get_coverage
+        run: |
+          percent=$(grep -E "TOTAL" coverage.txt | awk '{print $NF}' | sed 's/%//')
+          # mkdir badges
+          echo "Coverage=$percent%" && echo "coverage=$percent" >> $GITHUB_OUTPUT
 
       - name: Add Coverage to Summary
         run: |

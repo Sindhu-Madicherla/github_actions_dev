@@ -1,0 +1,81 @@
+name: Update Badges
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  update_badges:
+    runs-on: ubuntu-latest
+    env:
+      GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Get previous run ID
+        id: get-run-id
+        run: |
+          run_id=$(gh run list --workflow test.yml --json databaseId --jq '.[0].databaseId')
+          echo "run_id=$run_id" >> $GITHUB_ENV
+
+      - name: Download coverage report
+        run: |
+          curl -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
+               -H "Accept: application/vnd.github.v3+json" \
+               https://api.github.com/repos/Sindhu-Madicherla/github_actions_dev/actions/runs/${{ env.run_id }}/artifacts \
+               -o artifacts.json
+          artifact_url=$(jq -r '.artifacts[] | select(.name=="coverage-report") | .archive_download_url' artifacts.json)
+          curl -L -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
+               -H "Accept: application/vnd.github.v3+json" \
+               $artifact_url \
+               -o coverage-report.zip
+          unzip coverage-report.zip -d .
+
+      - name: Get Values
+        id: get-values
+        shell: bash
+        run: |
+          if [ -f "coverage.txt" ]; then
+            percent=$(grep -E "TOTAL" coverage.txt | awk '{print $NF}' | sed 's/%//')
+          else
+            echo "Error: coverage.txt not found."
+            exit 1
+          fi
+          echo "coverage=$COV" >> $GITHUB_OUTPUT
+
+      - name: Get Test Status
+        id: get-test-status
+        run: |
+          status=$(gh run view ${{ env.run_id }} --json conclusion --jq '.conclusion')
+          echo "status=$status" >> $GITHUB_ENV
+
+      - uses: actions/checkout@v4
+        with:
+            ref: gh-pages
+
+      - name: Create Badges
+        shell: bash
+        run: |
+          npm i -g badgen-cli
+          export COV=${{ steps.get-values.outputs.coverage }}
+          export STATUS=${{ env.status }}
+          COLOR=$(node -p '+process.env.COV >= 95 ? `green` : `orange`')
+          TEST_COLOR=$(node -p '+process.env.STATUS === `success` ? `green` : `red`')
+          mkdir -p badges
+          badgen -j coverage -s $COV% -c $COLOR > badges/coverage.svg
+          badgen -j tests -s $STATUS -c $TEST_COLOR > badges/tests-passing.svg
+          badgen -j python -s 3.10 -c blue > badges/python.svg
+
+      - name: Remove coverage.txt
+        run: rm -f coverage.txt
+
+      - name: Deploy Badges
+        uses: stefanzweifel/git-auto-commit-action@v4
+        with:
+          commit_message: "Update badges [skip ci]"
+          branch: gh-pages
+          skip_fetch: true
+          skip_checkout: true

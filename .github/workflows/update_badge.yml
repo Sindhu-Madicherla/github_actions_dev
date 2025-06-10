@@ -39,7 +39,7 @@ jobs:
         shell: bash
         run: |
           if [ -f "coverage.txt" ]; then
-            percent=$(grep -E "TOTAL" coverage.txt | awk '{print $NF}' | sed 's/%//')
+            COV=$(grep -E "TOTAL" coverage.txt | awk '{print $NF}' | sed 's/%//')
           else
             echo "Error: coverage.txt not found."
             exit 1

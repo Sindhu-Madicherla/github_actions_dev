@@ -1,0 +1,32 @@
+============================= test session starts ==============================
+platform darwin -- Python 3.13.3, pytest-8.3.3, pluggy-1.6.0 -- /Users/sindhumadicherla/Personal_Git/github_actions_dev/testing/bin/python3
+cachedir: .pytest_cache
+rootdir: /Users/sindhumadicherla/Personal_Git/github_actions_dev
+plugins: cov-3.0.0
+collecting ... collected 2 items
+
+tests/test_my_module.py::test_add PASSED                                 [ 50%]
+tests/test_my_module.py::test_subtract FAILED                            [100%]
+
+=================================== FAILURES ===================================
+________________________________ test_subtract _________________________________
+
+    def test_subtract():
+>       assert subtract(5, 3) == 1
+E       assert 2 == 1
+E        +  where 2 = subtract(5, 3)
+
+tests/test_my_module.py:7: AssertionError
+
+---------- coverage: platform darwin, python 3.13.3-final-0 ----------
+Name                      Stmts   Miss  Cover
+---------------------------------------------
+src/my_module.py              4      0   100%
+tests/test_my_module.py       5      0   100%
+---------------------------------------------
+TOTAL                         9      0   100%
+
+=========================== short test summary info ============================
+FAILED tests/test_my_module.py::test_subtract - assert 2 == 1
+ +  where 2 = subtract(5, 3)
+========================= 1 failed, 1 passed in 0.02s ==========================

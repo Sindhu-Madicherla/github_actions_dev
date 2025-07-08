@@ -70,21 +70,16 @@ jobs:
             coverage_map["$module"]="$percentage"
           done
 
-          echo "Coverage map: ${coverage_map[@]}"
-          echo "async_post=${coverage_map["async-post"]:-N/A}" >> $GITHUB_OUTPUT
-          echo "async_sns_success=${coverage_map["async-sns-success"]:-N/A}" >> $GITHUB_OUTPUT
-          echo "async_sns_failure=${coverage_map["async-sns-failure"]:-N/A}" >> $GITHUB_OUTPUT
-          echo "task_get=${coverage_map["task-get"]:-N/A}" >> $GITHUB_OUTPUT
+          echo "v0_pre_percent=${coverage_map["v0-pre_cross_encoder"]:-N/A}" >> $GITHUB_OUTPUT
+          echo "v0_post_percent=${coverage_map["v0-post_cross_encoder"]:-N/A}" >> $GITHUB_OUTPUT
 
       - name: Add Coverage to Summary
         run: |
           echo "### Code Coverage Summary" >> $GITHUB_STEP_SUMMARY
           echo "| Module | Coverage |" >> $GITHUB_STEP_SUMMARY
           echo "|---|---|" >> $GITHUB_STEP_SUMMARY
-          echo "| Async-Post | **${{ steps.get_coverage.outputs.async_post }}%** |" >> $GITHUB_STEP_SUMMARY
-          echo "| Async SNS Success | **${{ steps.get_coverage.outputs.async_sns_success }}%** |" >> $GITHUB_STEP_SUMMARY
-          echo "| Async SNS Failure | **${{ steps.get_coverage.outputs.async_sns_failure }}%** |" >> $GITHUB_STEP_SUMMARY
-          echo "| Task Get | **${{ steps.get_coverage.outputs.task_get }}%** |" >> $GITHUB_STEP_SUMMARY
+          echo "| Pre-Cross Encoder | **${{ steps.get_coverage.outputs.v0_pre_percent }}%** |" >> $GITHUB_STEP_SUMMARY
+          echo "| Post-Cross Encoder | **${{ steps.get_coverage.outputs.v0_post_percent }}%** |" >> $GITHUB_STEP_SUMMARY
 
       # - name: Upload coverage report
       #   uses: actions/upload-artifact@v4

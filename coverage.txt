@@ -1,32 +1,233 @@
+Running unit tests for async-post...
+PYTHONPATH=lambdas/async-post python3 -m pytest lambdas/async-post/app/test -vv --cov=.
 ============================= test session starts ==============================
-platform darwin -- Python 3.13.3, pytest-8.3.3, pluggy-1.6.0 -- /Users/sindhumadicherla/Personal_Git/github_actions_dev/testing/bin/python3
+platform linux -- Python 3.10.18, pytest-8.3.3, pluggy-1.6.0 -- /opt/hostedtoolcache/Python/3.10.18/x64/bin/python3
 cachedir: .pytest_cache
-rootdir: /Users/sindhumadicherla/Personal_Git/github_actions_dev
-plugins: cov-3.0.0
-collecting ... collected 2 items
+rootdir: /home/runner/work/mlops-inference-api/mlops-inference-api
+plugins: mock-3.14.0, cov-3.0.0
+collecting ... collected 25 items
 
-tests/test_my_module.py::test_add PASSED                                 [ 50%]
-tests/test_my_module.py::test_subtract FAILED                            [100%]
+lambdas/async-post/app/test/test_index.py::test_successful_inference_with_input_location PASSED [  4%]
+lambdas/async-post/app/test/test_index.py::test_successful_inference_with_input_data PASSED [  8%]
+lambdas/async-post/app/test/test_index.py::test_unsuccessful_inference PASSED [ 12%]
+lambdas/async-post/app/test/test_index.py::test_unsuccessful_dynamodb_write PASSED [ 16%]
+lambdas/async-post/app/test/test_index.py::test_successful_inference_with_input_data_and_kb PASSED [ 20%]
+lambdas/async-post/app/test/test_index.py::test_successful_inference_with_input_data_without_kb PASSED [ 24%]
+lambdas/async-post/app/test/test_index.py::test_successful_inference_with_parsing PASSED [ 28%]
+lambdas/async-post/app/test/test_models.py::test_valid_input_location PASSED [ 32%]
+lambdas/async-post/app/test/test_models.py::test_valid_input_data PASSED [ 36%]
+lambdas/async-post/app/test/test_models.py::test_missing_both_input_location_and_data PASSED [ 40%]
+lambdas/async-post/app/test/test_models.py::test_both_input_location_and_data_provided PASSED [ 44%]
+lambdas/async-post/app/test/test_models.py::test_valid_input_data_with_json_content_type PASSED [ 48%]
+lambdas/async-post/app/test/test_models.py::test_valid_input_data_with_default_content_type PASSED [ 52%]
+lambdas/async-post/app/test/test_parsers.py::test_parse_json_input PASSED [ 56%]
+lambdas/async-post/app/test/test_parsers.py::test_content_type_parsers_triton PASSED [ 60%]
+lambdas/async-post/app/test/test_s3.py::test_parse_s3_uri[s3://bucket1/prefix1/myobject.json-bucket1-prefix1-myobject.json] PASSED [ 64%]
+lambdas/async-post/app/test/test_s3.py::test_parse_s3_uri[bucket1/prefix1/file.txt-bucket1-prefix1-file.txt] PASSED [ 68%]
+lambdas/async-post/app/test/test_s3.py::test_parse_s3_uri[bucket2/singlefile.txt-bucket2--singlefile.txt] PASSED [ 72%]
+lambdas/async-post/app/test/test_s3.py::test_parse_s3_uri[s3://bucket2/singlefile.txt-bucket2--singlefile.txt] PASSED [ 76%]
+lambdas/async-post/app/test/test_s3.py::test_parse_s3_uri[s3://bucket1/prefix1/prefix2/myobject.json-bucket1-prefix1/prefix2-myobject.json] PASSED [ 80%]
+lambdas/async-post/app/test/test_s3.py::test_parse_s3_uri[bucket1/prefix1/prefix2/file.txt-bucket1-prefix1/prefix2-file.txt] PASSED [ 84%]
+lambdas/async-post/app/test/test_s3.py::test_bad_s3_uri[s3://bucket1] PASSED [ 88%]
+lambdas/async-post/app/test/test_s3.py::test_bad_s3_uri[bucket1] PASSED  [ 92%]
+lambdas/async-post/app/test/test_sagemaker.py::test_successful_inference PASSED [ 96%]
+lambdas/async-post/app/test/test_sagemaker.py::test_unsuccessful_inference PASSED [100%]
 
-=================================== FAILURES ===================================
-________________________________ test_subtract _________________________________
+=============================== warnings summary ===============================
+../../../../../opt/hostedtoolcache/Python/3.10.18/x64/lib/python3.10/site-packages/pytest_cov/plugin.py:256
+  /opt/hostedtoolcache/Python/3.10.18/x64/lib/python3.10/site-packages/pytest_cov/plugin.py:256: PytestDeprecationWarning: The hookimpl CovPlugin.pytest_configure_node uses old-style configuration options (marks or attributes).
+  Please use the pytest.hookimpl(optionalhook=True) decorator instead
+   to configure the hooks.
+   See https://docs.pytest.org/en/latest/deprecations.html#configuring-hook-specs-impls-using-markers
+    def pytest_configure_node(self, node):
 
-    def test_subtract():
->       assert subtract(5, 3) == 1
-E       assert 2 == 1
-E        +  where 2 = subtract(5, 3)
+../../../../../opt/hostedtoolcache/Python/3.10.18/x64/lib/python3.10/site-packages/pytest_cov/plugin.py:265
+  /opt/hostedtoolcache/Python/3.10.18/x64/lib/python3.10/site-packages/pytest_cov/plugin.py:265: PytestDeprecationWarning: The hookimpl CovPlugin.pytest_testnodedown uses old-style configuration options (marks or attributes).
+  Please use the pytest.hookimpl(optionalhook=True) decorator instead
+   to configure the hooks.
+   See https://docs.pytest.org/en/latest/deprecations.html#configuring-hook-specs-impls-using-markers
+    def pytest_testnodedown(self, node, error):
 
-tests/test_my_module.py:7: AssertionError
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
 
----------- coverage: platform darwin, python 3.13.3-final-0 ----------
-Name                      Stmts   Miss  Cover
----------------------------------------------
-src/my_module.py              4      0   100%
-tests/test_my_module.py       5      0   100%
----------------------------------------------
-TOTAL                         9      0   100%
+---------- coverage: platform linux, python 3.10.18-final-0 ----------
+Name                                            Stmts   Miss  Cover
+-------------------------------------------------------------------
+lambdas/async-post/app/index.py                    62      5    92%
+lambdas/async-post/app/models.py                   23      0   100%
+lambdas/async-post/app/parsers.py                   4      0   100%
+lambdas/async-post/app/s3.py                       22      7    68%
+lambdas/async-post/app/sagemaker.py                16      0   100%
+lambdas/async-post/app/test/__init__.py             0      0   100%
+lambdas/async-post/app/test/test_index.py         106      1    99%
+lambdas/async-post/app/test/test_models.py         33      0   100%
+lambdas/async-post/app/test/test_parsers.py        14      0   100%
+lambdas/async-post/app/test/test_s3.py             12      0   100%
+lambdas/async-post/app/test/test_sagemaker.py      19      0   100%
+-------------------------------------------------------------------
+TOTAL                                             311     13    96%
 
-=========================== short test summary info ============================
-FAILED tests/test_my_module.py::test_subtract - assert 2 == 1
- +  where 2 = subtract(5, 3)
-========================= 1 failed, 1 passed in 0.02s ==========================
+======================== 25 passed, 2 warnings in 0.76s ========================
+Running unit tests for async-sns-success...
+PYTHONPATH=lambdas/async-sns-success python3 -m pytest lambdas/async-sns-success/app/test -vv --cov=.
+============================= test session starts ==============================
+platform linux -- Python 3.10.18, pytest-8.3.3, pluggy-1.6.0 -- /opt/hostedtoolcache/Python/3.10.18/x64/bin/python3
+cachedir: .pytest_cache
+rootdir: /home/runner/work/mlops-inference-api/mlops-inference-api
+plugins: mock-3.14.0, cov-3.0.0
+collecting ... collected 17 items
+
+lambdas/async-sns-success/app/test/test_index.py::test_handler_success PASSED [  5%]
+lambdas/async-sns-success/app/test/test_index.py::test_handler_process_message_exception PASSED [ 11%]
+lambdas/async-sns-success/app/test/test_message.py::test_process_message_success_no_custom_output PASSED [ 17%]
+lambdas/async-sns-success/app/test/test_message.py::test_process_message_success_custom_output PASSED [ 23%]
+lambdas/async-sns-success/app/test/test_message.py::test_process_message_success_custom_output_triton PASSED [ 29%]
+lambdas/async-sns-success/app/test/test_message.py::test_get_item_exception PASSED [ 35%]
+lambdas/async-sns-success/app/test/test_message.py::test_update_item_exception PASSED [ 41%]
+lambdas/async-sns-success/app/test/test_message.py::test_process_message_with_retry PASSED [ 47%]
+lambdas/async-sns-success/app/test/test_s3.py::test_parse_s3_uri[s3://bucket1/prefix1/myobject.json-bucket1-prefix1-myobject.json] PASSED [ 52%]
+lambdas/async-sns-success/app/test/test_s3.py::test_parse_s3_uri[bucket1/prefix1/file.txt-bucket1-prefix1-file.txt] PASSED [ 58%]
+lambdas/async-sns-success/app/test/test_s3.py::test_parse_s3_uri[bucket2/singlefile.txt-bucket2--singlefile.txt] PASSED [ 64%]
+lambdas/async-sns-success/app/test/test_s3.py::test_parse_s3_uri[s3://bucket2/singlefile.txt-bucket2--singlefile.txt] PASSED [ 70%]
+lambdas/async-sns-success/app/test/test_s3.py::test_parse_s3_uri[s3://bucket1/prefix1/prefix2/myobject.json-bucket1-prefix1/prefix2-myobject.json] PASSED [ 76%]
+lambdas/async-sns-success/app/test/test_s3.py::test_parse_s3_uri[bucket1/prefix1/prefix2/file.txt-bucket1-prefix1/prefix2-file.txt] PASSED [ 82%]
+lambdas/async-sns-success/app/test/test_s3.py::test_bad_s3_uri[s3://bucket1] PASSED [ 88%]
+lambdas/async-sns-success/app/test/test_s3.py::test_bad_s3_uri[bucket1] PASSED [ 94%]
+lambdas/async-sns-success/app/test/test_s3.py::test_copy_triton_object PASSED [100%]
+
+=============================== warnings summary ===============================
+../../../../../opt/hostedtoolcache/Python/3.10.18/x64/lib/python3.10/site-packages/pytest_cov/plugin.py:256
+  /opt/hostedtoolcache/Python/3.10.18/x64/lib/python3.10/site-packages/pytest_cov/plugin.py:256: PytestDeprecationWarning: The hookimpl CovPlugin.pytest_configure_node uses old-style configuration options (marks or attributes).
+  Please use the pytest.hookimpl(optionalhook=True) decorator instead
+   to configure the hooks.
+   See https://docs.pytest.org/en/latest/deprecations.html#configuring-hook-specs-impls-using-markers
+    def pytest_configure_node(self, node):
+
+../../../../../opt/hostedtoolcache/Python/3.10.18/x64/lib/python3.10/site-packages/pytest_cov/plugin.py:265
+  /opt/hostedtoolcache/Python/3.10.18/x64/lib/python3.10/site-packages/pytest_cov/plugin.py:265: PytestDeprecationWarning: The hookimpl CovPlugin.pytest_testnodedown uses old-style configuration options (marks or attributes).
+  Please use the pytest.hookimpl(optionalhook=True) decorator instead
+   to configure the hooks.
+   See https://docs.pytest.org/en/latest/deprecations.html#configuring-hook-specs-impls-using-markers
+    def pytest_testnodedown(self, node, error):
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+
+---------- coverage: platform linux, python 3.10.18-final-0 ----------
+Name                                                 Stmts   Miss  Cover
+------------------------------------------------------------------------
+lambdas/async-sns-success/app/index.py                  17      0   100%
+lambdas/async-sns-success/app/message.py                52      0   100%
+lambdas/async-sns-success/app/s3.py                     21      1    95%
+lambdas/async-sns-success/app/test/__init__.py           0      0   100%
+lambdas/async-sns-success/app/test/test_index.py        19      0   100%
+lambdas/async-sns-success/app/test/test_message.py      89      0   100%
+lambdas/async-sns-success/app/test/test_s3.py           28      0   100%
+------------------------------------------------------------------------
+TOTAL                                                  226      1    99%
+
+======================= 17 passed, 2 warnings in 16.08s ========================
+Running unit tests for async-sns-failure...
+PYTHONPATH=lambdas/async-sns-success python3 -m pytest lambdas/async-sns-failure/app/test -vv --cov=.
+============================= test session starts ==============================
+platform linux -- Python 3.10.18, pytest-8.3.3, pluggy-1.6.0 -- /opt/hostedtoolcache/Python/3.10.18/x64/bin/python3
+cachedir: .pytest_cache
+rootdir: /home/runner/work/mlops-inference-api/mlops-inference-api
+plugins: mock-3.14.0, cov-3.0.0
+collecting ... collected 15 items
+
+lambdas/async-sns-failure/app/test/test_index.py::test_handler_success PASSED [  6%]
+lambdas/async-sns-failure/app/test/test_index.py::test_handler_process_message_exception PASSED [ 13%]
+lambdas/async-sns-failure/app/test/test_message.py::test_process_message_success_no_custom_output PASSED [ 20%]
+lambdas/async-sns-failure/app/test/test_message.py::test_process_message_success_custom_output PASSED [ 26%]
+lambdas/async-sns-failure/app/test/test_message.py::test_get_item_exception PASSED [ 33%]
+lambdas/async-sns-failure/app/test/test_message.py::test_update_item_exception PASSED [ 40%]
+lambdas/async-sns-failure/app/test/test_message.py::test_process_message_with_retry PASSED [ 46%]
+lambdas/async-sns-failure/app/test/test_s3.py::test_parse_s3_uri[s3://bucket1/prefix1/myobject.json-bucket1-prefix1-myobject.json] PASSED [ 53%]
+lambdas/async-sns-failure/app/test/test_s3.py::test_parse_s3_uri[bucket1/prefix1/file.txt-bucket1-prefix1-file.txt] PASSED [ 60%]
+lambdas/async-sns-failure/app/test/test_s3.py::test_parse_s3_uri[bucket2/singlefile.txt-bucket2--singlefile.txt] PASSED [ 66%]
+lambdas/async-sns-failure/app/test/test_s3.py::test_parse_s3_uri[s3://bucket2/singlefile.txt-bucket2--singlefile.txt] PASSED [ 73%]
+lambdas/async-sns-failure/app/test/test_s3.py::test_parse_s3_uri[s3://bucket1/prefix1/prefix2/myobject.json-bucket1-prefix1/prefix2-myobject.json] PASSED [ 80%]
+lambdas/async-sns-failure/app/test/test_s3.py::test_parse_s3_uri[bucket1/prefix1/prefix2/file.txt-bucket1-prefix1/prefix2-file.txt] PASSED [ 86%]
+lambdas/async-sns-failure/app/test/test_s3.py::test_bad_s3_uri[s3://bucket1] PASSED [ 93%]
+lambdas/async-sns-failure/app/test/test_s3.py::test_bad_s3_uri[bucket1] PASSED [100%]
+
+=============================== warnings summary ===============================
+../../../../../opt/hostedtoolcache/Python/3.10.18/x64/lib/python3.10/site-packages/pytest_cov/plugin.py:256
+  /opt/hostedtoolcache/Python/3.10.18/x64/lib/python3.10/site-packages/pytest_cov/plugin.py:256: PytestDeprecationWarning: The hookimpl CovPlugin.pytest_configure_node uses old-style configuration options (marks or attributes).
+  Please use the pytest.hookimpl(optionalhook=True) decorator instead
+   to configure the hooks.
+   See https://docs.pytest.org/en/latest/deprecations.html#configuring-hook-specs-impls-using-markers
+    def pytest_configure_node(self, node):
+
+../../../../../opt/hostedtoolcache/Python/3.10.18/x64/lib/python3.10/site-packages/pytest_cov/plugin.py:265
+  /opt/hostedtoolcache/Python/3.10.18/x64/lib/python3.10/site-packages/pytest_cov/plugin.py:265: PytestDeprecationWarning: The hookimpl CovPlugin.pytest_testnodedown uses old-style configuration options (marks or attributes).
+  Please use the pytest.hookimpl(optionalhook=True) decorator instead
+   to configure the hooks.
+   See https://docs.pytest.org/en/latest/deprecations.html#configuring-hook-specs-impls-using-markers
+    def pytest_testnodedown(self, node, error):
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+
+---------- coverage: platform linux, python 3.10.18-final-0 ----------
+Name                                                 Stmts   Miss  Cover
+------------------------------------------------------------------------
+lambdas/async-sns-failure/app/index.py                  17      0   100%
+lambdas/async-sns-failure/app/message.py                46      0   100%
+lambdas/async-sns-failure/app/s3.py                     11      1    91%
+lambdas/async-sns-failure/app/test/__init__.py           0      0   100%
+lambdas/async-sns-failure/app/test/test_index.py        19      0   100%
+lambdas/async-sns-failure/app/test/test_message.py      65      0   100%
+lambdas/async-sns-failure/app/test/test_s3.py           12      0   100%
+------------------------------------------------------------------------
+TOTAL                                                  170      1    99%
+
+======================= 15 passed, 2 warnings in 15.89s ========================
+Running unit tests for task-get...
+PYTHONPATH=lambdas/task-get python3 -m pytest lambdas/task-get/app/test -vv --cov=.
+============================= test session starts ==============================
+platform linux -- Python 3.10.18, pytest-8.3.3, pluggy-1.6.0 -- /opt/hostedtoolcache/Python/3.10.18/x64/bin/python3
+cachedir: .pytest_cache
+rootdir: /home/runner/work/mlops-inference-api/mlops-inference-api
+plugins: mock-3.14.0, cov-3.0.0
+collecting ... collected 10 items
+
+lambdas/task-get/app/test/test_index.py::test_handler_success PASSED     [ 10%]
+lambdas/task-get/app/test/test_index.py::test_handler_missing_id PASSED  [ 20%]
+lambdas/task-get/app/test/test_index.py::test_handler_item_not_found PASSED [ 30%]
+lambdas/task-get/app/test/test_index.py::test_handler_exception PASSED   [ 40%]
+lambdas/task-get/app/test/test_index.py::test_handler_completed_with_input_data PASSED [ 50%]
+lambdas/task-get/app/test/test_index.py::test_handler_inprogress_with_input_data PASSED [ 60%]
+lambdas/task-get/app/test/test_index.py::test_handler_completed_without_input_data PASSED [ 70%]
+lambdas/task-get/app/test/test_index.py::test_handler_unsupported_content_type PASSED [ 80%]
+lambdas/task-get/app/test/test_index.py::test_handler_failed_with_input_data PASSED [ 90%]
+lambdas/task-get/app/test/test_parsers.py::test_parse_json PASSED        [100%]
+
+=============================== warnings summary ===============================
+../../../../../opt/hostedtoolcache/Python/3.10.18/x64/lib/python3.10/site-packages/pytest_cov/plugin.py:256
+  /opt/hostedtoolcache/Python/3.10.18/x64/lib/python3.10/site-packages/pytest_cov/plugin.py:256: PytestDeprecationWarning: The hookimpl CovPlugin.pytest_configure_node uses old-style configuration options (marks or attributes).
+  Please use the pytest.hookimpl(optionalhook=True) decorator instead
+   to configure the hooks.
+   See https://docs.pytest.org/en/latest/deprecations.html#configuring-hook-specs-impls-using-markers
+    def pytest_configure_node(self, node):
+
+../../../../../opt/hostedtoolcache/Python/3.10.18/x64/lib/python3.10/site-packages/pytest_cov/plugin.py:265
+  /opt/hostedtoolcache/Python/3.10.18/x64/lib/python3.10/site-packages/pytest_cov/plugin.py:265: PytestDeprecationWarning: The hookimpl CovPlugin.pytest_testnodedown uses old-style configuration options (marks or attributes).
+  Please use the pytest.hookimpl(optionalhook=True) decorator instead
+   to configure the hooks.
+   See https://docs.pytest.org/en/latest/deprecations.html#configuring-hook-specs-impls-using-markers
+    def pytest_testnodedown(self, node, error):
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+
+---------- coverage: platform linux, python 3.10.18-final-0 ----------
+Name                                        Stmts   Miss  Cover
+---------------------------------------------------------------
+lambdas/task-get/app/index.py                  38      0   100%
+lambdas/task-get/app/parsers.py                 7      0   100%
+lambdas/task-get/app/test/__init__.py           0      0   100%
+lambdas/task-get/app/test/test_index.py        80      0   100%
+lambdas/task-get/app/test/test_parsers.py      10      0   100%
+---------------------------------------------------------------
+TOTAL                                         135      0   100%
+
+======================== 10 passed, 2 warnings in 0.36s ========================

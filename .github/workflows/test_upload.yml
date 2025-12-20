@@ -1,0 +1,60 @@
+name: Test file hash
+
+# on workflow dispatch no inouts needed
+on: [workflow_dispatch]
+
+permissions:
+  contents: read
+  actions: read
+  pull-requests: write
+  id-token: write
+
+jobs:
+  upload-job:
+    runs-on: ubuntu-latest
+
+    name: Test file hash
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Test zip a file
+        run: |
+          mkdir -p output
+          echo "This is a test file for zipping." > output/testfile.txt
+          zip -j output/test_package.zip output/testfile.txt
+
+      - name: Upload Lambda Package
+        uses: actions/upload-artifact@v4
+        with:
+          name: lambda-package
+          path: output/*.zip
+
+      - name: Get source code hash for test file
+        id: source_code_hash
+        run: |
+          SOURCE_CODE_HASH=$(openssl dgst -sha256 -binary output/test_package.zip | base64)
+          echo "SOURCE_CODE_HASH=${SOURCE_CODE_HASH}" >> $GITHUB_ENV
+          echo "Source code hash: ${SOURCE_CODE_HASH}"
+
+
+  download-job:
+    runs-on: ubuntu-latest
+    name: Download and verify file hash
+    needs: upload-job
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Download Lambda Package
+        uses: actions/download-artifact@v4
+        with:
+          name: lambda-package
+          path: output
+
+      - name: Get downloaded file hash
+        id: downloaded_file_hash
+        run: |
+          DOWNLOADED_FILE_HASH=$(openssl dgst -sha256 -binary output/test_package.zip | base64)
+          echo "DOWNLOADED_FILE_HASH=${DOWNLOADED_FILE_HASH}" >> $GITHUB_ENV
+          echo "Downloaded file hash: ${DOWNLOADED_FILE_HASH}"
